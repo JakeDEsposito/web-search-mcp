@@ -9,13 +9,12 @@ import { EnhancedContentExtractor } from './enhanced-content-extractor.js';
 import { WebSearchToolInput, WebSearchToolOutput, SearchResult } from './types.js';
 import { isPdfUrl } from './utils.js';
 
-class WebSearchMCPServer {
-  private server: McpServer;
+class WebSearchMCPServer extends McpServer {
   private searchEngine: SearchEngine;
   private contentExtractor: EnhancedContentExtractor;
 
   constructor() {
-    this.server = new McpServer({
+    super({
       name: 'web-search-mcp',
       version: '0.3.1',
     });
@@ -29,7 +28,7 @@ class WebSearchMCPServer {
 
   private setupTools(): void {
     // Register the main web search tool (primary choice for comprehensive searches)
-    this.server.tool(
+    this.tool(
       'full-web-search',
       'Search the web and fetch complete page content from top results. This is the most comprehensive web search tool. It searches the web and then follows the resulting links to extract their full page content, providing the most detailed and complete information available. Use get-web-search-summaries for a lightweight alternative.',
       {
@@ -147,7 +146,7 @@ class WebSearchMCPServer {
     );
 
     // Register the lightweight web search summaries tool (secondary choice for quick results)
-    this.server.tool(
+    this.tool(
       'get-web-search-summaries',
       'Search the web and return only the search result snippets/descriptions without following links to extract full page content. This is a lightweight alternative to full-web-search for when you only need brief search results. For comprehensive information, use full-web-search instead.',
       {
@@ -240,7 +239,7 @@ class WebSearchMCPServer {
     );
 
     // Register the single page content extraction tool
-    this.server.tool(
+    this.tool(
       'get-single-web-page-content',
       'Extract and return the full content from a single web page URL. This tool follows a provided URL and extracts the main page content. Useful for getting detailed content from a specific webpage without performing a search.',
       {
