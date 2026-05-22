@@ -560,6 +560,10 @@ app.get('/', async (_, res) => {
   res.send('MCP SSE Server running at /sse');
 });
 
+app.get('/health', async (_, res) => {
+  res.status(200).send('OK');
+});
+
 app.listen(PORT, () => {
   console.log(`MCP SSE Server is running on port ${PORT}`);
 });

@@ -17,7 +17,9 @@ WORKDIR /usr/src/app
 RUN bunx playwright install
 COPY --from=builder /usr/src/app/dist/index.js .
 
-# Start the application
 ENV PORT=3000
 EXPOSE $PORT
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:$PORT/health || exit 1
+
 CMD ["bun", "index.js"]
