@@ -548,7 +548,7 @@ app.post('/messages', async (req, res) => {
   const transport = activeTransports.get(sessionId);
 
   if (!transport) {
-    console.error(`No transport found for sessionId: ${sessionId}`);
+    console.error(`No transport found for sessionId: ${sessionId.replace(/[\r\n]/g, '')}`);
     res.status(404).send('Session not found');
     return;
   }
