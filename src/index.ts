@@ -527,6 +527,7 @@ class WebSearchMCPServer extends McpServer {
 const server = new WebSearchMCPServer();
 
 const app = express();
+app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 const transportMap = new Map<string, SSEServerTransport>();
