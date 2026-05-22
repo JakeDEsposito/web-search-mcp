@@ -3,11 +3,13 @@ console.log('Web Search MCP Server starting...');
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { z } from 'zod';
 import { SearchEngine } from './search-engine.js';
 import { EnhancedContentExtractor } from './enhanced-content-extractor.js';
 import { WebSearchToolInput, WebSearchToolOutput, SearchResult } from './types.js';
 import { isPdfUrl } from './utils.js';
+import express from 'express';
 
 class WebSearchMCPServer extends McpServer {
   private searchEngine: SearchEngine;
@@ -523,6 +525,57 @@ class WebSearchMCPServer extends McpServer {
 
 // Start the server
 const server = new WebSearchMCPServer();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+const transportMap = new Map<string, SSEServerTransport>();
+
+app.get('/sse', async (_, res) => {
+  const transport = new SSEServerTransport('/messages', res);
+
+  const sessionId = transport.sessionId;
+
+  if (transportMap.has(sessionId)) {
+    console.error(`Transport with sessionId ${sessionId} already exists. Closing existing transport.`);
+    const existingTransport = transportMap.get(sessionId);
+    if (existingTransport) {
+      await existingTransport.close();
+    }
+  }
+
+  transportMap.set(sessionId, transport);
+
+  await server.connect(transport);
+
+  res.on('close', async () => {
+    console.log(`SSE connection closed for sessionId: ${sessionId}`);
+    transportMap.delete(sessionId);
+    await transport.close();
+  });
+});
+
+app.post('/messages', async (req, res) => {
+  const sessionId = req.query.sessionId as string;
+  const transport = transportMap.get(sessionId);
+
+  if (!transport) {
+    console.error(`No transport found for sessionId: ${sessionId}`);
+    res.status(404).send('Session not found');
+    return;
+  }
+
+  await transport.handlePostMessage(req, res);
+});
+
+app.get('/', async (_, res) => {
+  res.send('MCP SSE Server running at /sse');
+});
+
+app.listen(PORT, () => {
+  console.log(`MCP SSE Server is running on port ${PORT}`);
+});
+
 server.run().catch((error: unknown) => {
   if (error instanceof Error) {
     console.error('Server error:', error.message);
