@@ -2,7 +2,6 @@
 console.log('Web Search MCP Server starting...');
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { z } from 'zod';
 import { SearchEngine } from './search-engine.js';
@@ -510,21 +509,7 @@ class WebSearchMCPServer extends McpServer {
       process.exit(0);
     });
   }
-
-  async run(): Promise<void> {
-    console.log('Setting up MCP server...');
-    const transport = new StdioServerTransport();
-    
-    console.log('Connecting to transport...');
-    await this.server.connect(transport);
-    console.log('Web Search MCP Server started');
-    console.log('Server timestamp:', new Date().toISOString());
-    console.log('Waiting for MCP messages...');
-  }
 }
-
-// Start the server
-const server = new WebSearchMCPServer();
 
 const app = express();
 app.use(express.json());
@@ -547,12 +532,14 @@ app.get('/sse', async (_, res) => {
 
   activeTransports.set(sessionId, transport);
 
+  const server = new WebSearchMCPServer();
   await server.connect(transport);
 
   res.on('close', async () => {
     console.log(`SSE connection closed for sessionId: ${sessionId}`);
     activeTransports.delete(sessionId);
     await transport.close();
+    await server.close();
   });
 });
 
@@ -575,13 +562,4 @@ app.get('/', async (_, res) => {
 
 app.listen(PORT, () => {
   console.log(`MCP SSE Server is running on port ${PORT}`);
-});
-
-server.run().catch((error: unknown) => {
-  if (error instanceof Error) {
-    console.error('Server error:', error.message);
-  } else {
-    console.error('Server error:', error);
-  }
-  process.exit(1);
 });
