@@ -530,35 +530,35 @@ const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
-const transportMap = new Map<string, SSEServerTransport>();
+const activeTransports = new Map<string, SSEServerTransport>();
 
 app.get('/sse', async (_, res) => {
   const transport = new SSEServerTransport('/messages', res);
 
   const sessionId = transport.sessionId;
 
-  if (transportMap.has(sessionId)) {
+  if (activeTransports.has(sessionId)) {
     console.error(`Transport with sessionId ${sessionId} already exists. Closing existing transport.`);
-    const existingTransport = transportMap.get(sessionId);
+    const existingTransport = activeTransports.get(sessionId);
     if (existingTransport) {
       await existingTransport.close();
     }
   }
 
-  transportMap.set(sessionId, transport);
+  activeTransports.set(sessionId, transport);
 
   await server.connect(transport);
 
   res.on('close', async () => {
     console.log(`SSE connection closed for sessionId: ${sessionId}`);
-    transportMap.delete(sessionId);
+    activeTransports.delete(sessionId);
     await transport.close();
   });
 });
 
 app.post('/messages', async (req, res) => {
   const sessionId = req.query.sessionId as string;
-  const transport = transportMap.get(sessionId);
+  const transport = activeTransports.get(sessionId);
 
   if (!transport) {
     console.error(`No transport found for sessionId: ${sessionId}`);
