@@ -172,6 +172,9 @@ The server supports several environment variables for configuration:
 - **Limit browsers**: Reduce `MAX_BROWSERS` (default: 3)
 - **EventEmitter warnings**: Fixed - browsers are properly closed to prevent listener accumulation
 
+### Express JS
+- **CORS Allowed Origins**: The server supports CORS allowed origins configuration via `WEB_MCP_CORS_ORIGINS` environment variable (comma-separated list of allowed origins)
+
 ## For Development
 ```bash
 git clone https://github.com/mrkrsl/web-search-mcp.git
