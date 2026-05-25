@@ -18,6 +18,6 @@ RUN bunx playwright install
 COPY --from=builder /usr/src/app/dist/index.js .
 
 # Start the application
-ENV PORT=3000
-EXPOSE $PORT
+ENV WEB_MCP_PORT=3000
+EXPOSE $WEB_MCP_PORT
 CMD ["bun", "index.js"]

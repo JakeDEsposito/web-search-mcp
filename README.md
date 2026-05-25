@@ -172,6 +172,10 @@ The server supports several environment variables for configuration:
 - **Limit browsers**: Reduce `MAX_BROWSERS` (default: 3)
 - **EventEmitter warnings**: Fixed - browsers are properly closed to prevent listener accumulation
 
+### Express JS
+- **Port**: The server listens on port 3000 by default. You can change this with the `WEB_MCP_PORT` environment variable.
+- **Host**: The server listens on `localhost` by default. You can change this with the `WEB_MCP_HOST` environment variable.
+
 ## For Development
 ```bash
 git clone https://github.com/mrkrsl/web-search-mcp.git

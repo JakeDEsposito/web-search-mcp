@@ -513,7 +513,8 @@ class WebSearchMCPServer extends McpServer {
 
 const app = express();
 app.use(express.json());
-const PORT = process.env.PORT || 3000;
+const PORT: number = process.env.WEB_MCP_PORT ? parseInt(process.env.WEB_MCP_PORT) : 3000;
+const HOST: string = process.env.WEB_MCP_HOST || '0.0.0.0';
 
 const activeTransports = new Map<string, SSEServerTransport>();
 
@@ -561,6 +562,6 @@ app.get('/', async (_, res) => {
   res.send('MCP SSE Server running at /sse');
 });
 
-app.listen(PORT, () => {
-  console.log(`MCP SSE Server is running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`MCP SSE Server is running on http://${HOST}:${PORT}`);
 });
