@@ -513,8 +513,8 @@ class WebSearchMCPServer extends McpServer {
 
 const app = express();
 app.use(express.json());
-const PORT: number = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-const HOST: string = process.env.HOST || 'localhost';
+const PORT: number = process.env.WEB_MCP_PORT ? parseInt(process.env.WEB_MCP_PORT) : 3000;
+const HOST: string = process.env.WEB_MCP_HOST || 'localhost';
 
 const activeTransports = new Map<string, SSEServerTransport>();
 
