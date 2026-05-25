@@ -533,7 +533,6 @@ app.get('/sse', async (_, res) => {
   activeTransports.set(sessionId, transport);
 
   const server = new WebSearchMCPServer();
-  await server.connect(transport);
 
   res.on('close', async () => {
     console.log(`SSE connection closed for sessionId: ${sessionId}`);
@@ -541,6 +540,8 @@ app.get('/sse', async (_, res) => {
     await transport.close();
     await server.close();
   });
+
+  await server.connect(transport);
 });
 
 app.post('/messages', async (req, res) => {
@@ -553,7 +554,7 @@ app.post('/messages', async (req, res) => {
     return;
   }
 
-  await transport.handlePostMessage(req, res);
+  await transport.handlePostMessage(req, res, req.body);
 });
 
 app.get('/', async (_, res) => {
