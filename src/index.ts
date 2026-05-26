@@ -9,6 +9,7 @@ import { EnhancedContentExtractor } from './enhanced-content-extractor.js';
 import { WebSearchToolInput, WebSearchToolOutput, SearchResult } from './types.js';
 import { isPdfUrl } from './utils.js';
 import express from 'express';
+import cors from 'cors';
 
 class WebSearchMCPServer extends McpServer {
   private searchEngine: SearchEngine;
@@ -514,6 +515,11 @@ class WebSearchMCPServer extends McpServer {
 const app = express();
 app.use(express.json());
 const PORT = process.env.PORT || 3000;
+
+const allowedOrigins = process.env.WEB_MCP_CORS_ORIGINS?.split(',')?.map(origin => origin.trim()) || [];
+app.use(cors({
+  origin: allowedOrigins
+}));
 
 const activeTransports = new Map<string, SSEServerTransport>();
 
